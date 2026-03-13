@@ -32,5 +32,5 @@ Simple Pattern is a relaxation and entertainment app. It is **not** a medical de
 
 For questions, feedback, or support:
 
-- **Email:** williamjiamin@gmail.com
+- **Email:** williamjiaminus@gmail.com
 - **Issues:** [GitHub Issues](https://github.com/williamjiamin/Simple-Pattern/issues)

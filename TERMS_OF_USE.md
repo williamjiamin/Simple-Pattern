@@ -120,5 +120,5 @@ If any provision of these Terms is found to be unenforceable, the remaining prov
 
 If you have any questions about these Terms, please contact us at:
 
-**Email:** williamjiamin@gmail.com
+**Email:** williamjiaminus@gmail.com
 **GitHub:** [https://github.com/williamjiamin/Simple-Pattern](https://github.com/williamjiamin/Simple-Pattern)
