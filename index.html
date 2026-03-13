@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Pattern — Custom Vibration Patterns & Private Vault</title>
+    <meta name="description" content="Simple Pattern is an iOS app for customizable haptic vibration patterns, motion-reactive modes, and a private media vault. Relaxation & entertainment.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #7C5CFC;
+            --primary-light: #9B82FC;
+            --primary-dark: #5A3AD9;
+            --accent: #FF6B9D;
+            --bg: #0A0A0F;
+            --bg-card: #14141F;
+            --bg-card-hover: #1A1A2A;
+            --text: #FFFFFF;
+            --text-secondary: #8888AA;
+            --text-muted: #555577;
+            --border: #222240;
+            --gradient-1: linear-gradient(135deg, #7C5CFC 0%, #FF6B9D 100%);
+            --gradient-2: linear-gradient(135deg, #14141F 0%, #1A1A2A 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(124, 92, 252, 0.08) 0%, transparent 70%);
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .bg-glow::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            right: -10%;
+            width: 50%;
+            height: 50%;
+            background: radial-gradient(circle, rgba(255, 107, 157, 0.06) 0%, transparent 70%);
+            animation: float 18s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(30px, -30px); }
+            66% { transform: translate(-20px, 20px); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 16px 0;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .nav-logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        /* Hero */
+        .hero {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 160px 24px 100px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(124, 92, 252, 0.1);
+            border: 1px solid rgba(124, 92, 252, 0.2);
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary-light);
+            margin-bottom: 32px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .hero h1 .gradient-text {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 520px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            background: var(--gradient-1);
+            color: white;
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(124, 92, 252, 0.3);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            background: var(--bg-card);
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, background 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            background: var(--bg-card-hover);
+        }
+
+        /* Features */
+        .section {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            padding: 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(124, 92, 252, 0.3);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(124, 92, 252, 0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Privacy Banner */
+        .privacy-banner {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto 40px;
+            padding: 0 24px;
+        }
+
+        .privacy-banner-inner {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            padding: 48px;
+            background: var(--gradient-2);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+        }
+
+        .privacy-banner-icon {
+            font-size: 48px;
+            flex-shrink: 0;
+        }
+
+        .privacy-banner-content h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .privacy-banner-content p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .privacy-checks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 24px;
+            margin-top: 16px;
+        }
+
+        .privacy-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .privacy-check .check {
+            color: #4ADE80;
+            font-weight: 700;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        .disclaimer-inner {
+            padding: 32px 40px;
+            background: rgba(255, 180, 50, 0.04);
+            border: 1px solid rgba(255, 180, 50, 0.15);
+            border-radius: 16px;
+        }
+
+        .disclaimer-inner h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #FFB432;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .disclaimer-inner p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Legal Section */
+        .legal-page {
+            position: relative;
+            z-index: 1;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 120px 24px 80px;
+        }
+
+        .legal-page h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .legal-page .last-updated {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 48px;
+        }
+
+        .legal-page h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 12px;
+        }
+
+        .legal-page h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 8px;
+        }
+
+        .legal-page p, .legal-page li {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .legal-page ul {
+            padding-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        .legal-page strong {
+            color: var(--text);
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--border);
+            padding: 40px 24px;
+        }
+
+        .footer-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .footer-links a {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-secondary);
+        }
+
+        /* Mobile */
+        @media (max-width: 640px) {
+            .nav-links {
+                gap: 20px;
+            }
+
+            .nav-links a {
+                font-size: 13px;
+            }
+
+            .hero {
+                padding: 130px 20px 60px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .privacy-banner-inner {
+                flex-direction: column;
+                gap: 20px;
+                padding: 32px 24px;
+                text-align: center;
+            }
+
+            .privacy-checks {
+                justify-content: center;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Page routing */
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<!-- Navigation -->
+<nav>
+    <div class="nav-inner">
+        <a href="#" class="nav-logo" onclick="showPage('home')">
+            <div class="nav-logo-icon">〜</div>
+            <span class="nav-logo-text">Simple Pattern</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#features" onclick="showPage('home')">Features</a></li>
+            <li><a href="#" onclick="showPage('privacy')">Privacy</a></li>
+            <li><a href="#" onclick="showPage('terms')">Terms</a></li>
+            <li><a href="mailto:williamjiamin@gmail.com">Support</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-badge">✦ Available on iOS</div>
+        <h1>Feel the <span class="gradient-text">Pattern</span></h1>
+        <p>Custom haptic vibration patterns for relaxation and entertainment. Motion-reactive, audio-reactive, and fully private.</p>
+        <div class="hero-buttons">
+            <a href="#" class="btn-primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83"/><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/></svg>
+                Download on App Store
+            </a>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section" id="features">
+        <div class="section-header">
+            <h2>Everything you need</h2>
+            <p>Powerful haptic control with zero compromise on privacy</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎛️</div>
+                <h3>Manual Control</h3>
+                <p>Choose from curated preset patterns or adjust intensity in real time. Auto-start timers and scheduled sessions included.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Motion Reactive</h3>
+                <p>Tilt and move your device to control vibration intensity. The haptics respond to your every gesture.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎵</div>
+                <h3>Audio Reactive</h3>
+                <p>Vibrations that pulse and respond to ambient sound. Play music and feel the beat through haptic feedback.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👆</div>
+                <h3>Tap to Train</h3>
+                <p>Create custom patterns simply by tapping rhythms. The app learns your tempo and recreates it as haptics.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>Pattern Studio</h3>
+                <p>Design complex haptic patterns from scratch with a visual editor. Fine-tune intensity, sharpness, and timing.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Private Vault</h3>
+                <p>A secure, on-device media vault for photos and videos. Gallery mode with slideshow, shuffle, and loop.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Privacy Banner -->
+    <div class="privacy-banner">
+        <div class="privacy-banner-inner">
+            <div class="privacy-banner-icon">🛡️</div>
+            <div class="privacy-banner-content">
+                <h3>Privacy is not optional</h3>
+                <p>Everything stays on your device. We don't run servers. We don't collect data. We don't track you. Simple as that.</p>
+                <div class="privacy-checks">
+                    <span class="privacy-check"><span class="check">✓</span> Zero data collection</span>
+                    <span class="privacy-check"><span class="check">✓</span> No analytics or tracking</span>
+                    <span class="privacy-check"><span class="check">✓</span> No cloud uploads</span>
+                    <span class="privacy-check"><span class="check">✓</span> No account required</span>
+                    <span class="privacy-check"><span class="check">✓</span> All processing on-device</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+        <div class="disclaimer-inner">
+            <h3>⚠️ Disclaimer</h3>
+            <p>Simple Pattern is a relaxation and entertainment application. It is not a medical device and is not intended for medical diagnosis, treatment, or therapy. The vibrations are generated using your device's built-in haptic engine. If you have a medical condition, please consult a healthcare professional before use.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- PRIVACY POLICY PAGE -->
+<div id="page-privacy" class="page">
+    <div class="legal-page">
+        <h1>Privacy Policy</h1>
+        <p class="last-updated">Last Updated: March 13, 2026</p>
+
+        <h2>Introduction</h2>
+        <p>Simple Pattern ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use the Simple Pattern mobile application ("App").</p>
+        <p>By using Simple Pattern, you agree to the collection and use of information in accordance with this policy.</p>
+
+        <h2>Information We Collect</h2>
+        <h3>Information You Provide</h3>
+        <p><strong>Subscription Information:</strong> When you subscribe to Simple Pattern Pro, payment is processed securely through Apple's App Store. We do not collect, store, or have access to your payment details, credit card numbers, or Apple ID credentials.</p>
+
+        <h3>Automatically Collected Information</h3>
+        <ul>
+            <li><strong>Device Motion Data:</strong> The App uses your device's accelerometer and gyroscope to enable motion-reactive haptic patterns. This data is processed locally on your device in real time and is never transmitted, stored, or shared.</li>
+            <li><strong>Audio Data:</strong> When you use the audio-reactive mode, the App accesses your device's microphone to analyze sound levels in real time. Audio data is processed entirely on your device, is never recorded, and is never transmitted to any server.</li>
+            <li><strong>Session Data:</strong> The App may store anonymous session history (duration, mode used) locally on your device to provide personalized recommendations. This data never leaves your device.</li>
+        </ul>
+
+        <h3>Information We Do NOT Collect</h3>
+        <ul>
+            <li>We do <strong>not</strong> collect personal identification information (name, email, phone number)</li>
+            <li>We do <strong>not</strong> collect location data</li>
+            <li>We do <strong>not</strong> collect health or medical data</li>
+            <li>We do <strong>not</strong> use analytics or tracking SDKs</li>
+            <li>We do <strong>not</strong> collect browsing history or usage patterns outside the App</li>
+            <li>We do <strong>not</strong> use cookies or similar tracking technologies</li>
+            <li>We do <strong>not</strong> collect or process facial data or biometric information</li>
+        </ul>
+
+        <h2>Media Vault</h2>
+        <p>Simple Pattern includes a private media vault feature where you can import photos and videos from your device's photo library. All imported media is stored locally on your device in the App's sandboxed storage. Media files are:</p>
+        <ul>
+            <li><strong>Never uploaded</strong> to any server or cloud service</li>
+            <li><strong>Never shared</strong> with third parties</li>
+            <li><strong>Never accessed</strong> by us in any way</li>
+            <li><strong>Encrypted</strong> by iOS at the device level</li>
+            <li><strong>Deleted</strong> when you remove them from the vault or uninstall the App</li>
+        </ul>
+
+        <h2>Data Storage and Security</h2>
+        <p>All data generated by Simple Pattern is stored locally on your device. We do not operate servers that receive, process, or store any user data. Your data is protected by iOS's built-in security features, including app sandboxing, device-level encryption, and Secure Enclave protection.</p>
+
+        <h2>Third-Party Services</h2>
+        <h3>Apple App Store</h3>
+        <p>Subscription purchases are processed by Apple. Apple's privacy policy governs how they handle payment information. Please review <a href="https://www.apple.com/legal/privacy/" style="color: var(--primary-light);">Apple's Privacy Policy</a> for details.</p>
+        <h3>No Other Third Parties</h3>
+        <p>We do not integrate any third-party analytics, advertising, social media, or tracking services.</p>
+
+        <h2>Children's Privacy</h2>
+        <p>Simple Pattern does not knowingly collect personal information from children under the age of 13. The App does not require account creation or personal information to use.</p>
+
+        <h2>Your Rights</h2>
+        <p>Since all data is stored locally on your device, you have full control over your data at all times:</p>
+        <ul>
+            <li><strong>Access:</strong> All your data is on your device</li>
+            <li><strong>Delete:</strong> You can delete session history, vault media, and custom patterns within the App</li>
+            <li><strong>Complete Removal:</strong> Uninstalling the App removes all associated data from your device</li>
+        </ul>
+
+        <h2>Medical Disclaimer</h2>
+        <p>Simple Pattern is a relaxation and entertainment application. It is <strong>not</strong> a medical device and is <strong>not</strong> intended for medical diagnosis, treatment, or therapy. If you have a medical condition, consult a healthcare professional before use.</p>
+
+        <h2>Changes to This Policy</h2>
+        <p>We may update this Privacy Policy from time to time. Any changes will be reflected by updating the "Last Updated" date at the top of this document.</p>
+
+        <h2>Contact Us</h2>
+        <p>If you have any questions about this Privacy Policy, please contact us at:<br>
+        <strong>Email:</strong> <a href="mailto:williamjiamin@gmail.com" style="color: var(--primary-light);">williamjiamin@gmail.com</a></p>
+    </div>
+</div>
+
+<!-- TERMS OF USE PAGE -->
+<div id="page-terms" class="page">
+    <div class="legal-page">
+        <h1>Terms of Use</h1>
+        <p class="last-updated">Last Updated: March 13, 2026</p>
+
+        <h2>1. Acceptance of Terms</h2>
+        <p>By downloading, installing, or using Simple Pattern ("App"), you agree to be bound by these Terms of Use ("Terms"). If you do not agree to these Terms, do not use the App.</p>
+
+        <h2>2. Description of Service</h2>
+        <p>Simple Pattern is a mobile application that provides customizable haptic vibration patterns for relaxation and entertainment purposes. The App uses your device's built-in haptic engine to generate vibration patterns.</p>
+
+        <h2>3. Medical Disclaimer</h2>
+        <p><strong>Simple Pattern is NOT a medical device.</strong> The App is designed solely for relaxation and entertainment. It is not intended to diagnose, treat, cure, or prevent any disease or medical condition.</p>
+        <ul>
+            <li>Do not use the App as a substitute for professional medical advice</li>
+            <li>Consult a healthcare professional before use if you have any medical conditions</li>
+            <li>Discontinue use immediately if you experience any discomfort</li>
+            <li>The App should not be used on or near medical devices such as pacemakers</li>
+        </ul>
+
+        <h2>4. Eligibility</h2>
+        <p>You must be at least 13 years of age to use this App.</p>
+
+        <h2>5. Subscriptions and Purchases</h2>
+        <h3>5.1 Free Features</h3>
+        <p>Simple Pattern offers core vibration features at no cost, including manual mode with preset patterns.</p>
+        <h3>5.2 Simple Pattern Pro</h3>
+        <p>Premium features are available through auto-renewable subscriptions (weekly, monthly, yearly) or a one-time lifetime purchase.</p>
+        <h3>5.3 Payment and Renewal</h3>
+        <ul>
+            <li>Payment is charged to your Apple ID account at confirmation of purchase</li>
+            <li>Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current period</li>
+            <li>Your account will be charged for renewal within 24 hours prior to the end of the current period</li>
+            <li>You can manage and cancel subscriptions in your Apple ID account settings</li>
+        </ul>
+        <h3>5.4 Free Trial</h3>
+        <p>If offered, any unused portion of a free trial period will be forfeited when you purchase a subscription.</p>
+        <h3>5.5 Refunds</h3>
+        <p>All purchases are processed through Apple's App Store. Refund requests must be directed to Apple.</p>
+
+        <h2>6. User Content</h2>
+        <p>The App allows you to import media into a private vault and create custom patterns. You retain all ownership rights. All content is stored locally on your device.</p>
+
+        <h2>7. Acceptable Use</h2>
+        <p>You agree not to:</p>
+        <ul>
+            <li>Use the App in any way that could cause physical harm</li>
+            <li>Use the App while operating vehicles or heavy machinery</li>
+            <li>Reverse engineer, decompile, or disassemble the App</li>
+            <li>Attempt to circumvent subscription requirements</li>
+            <li>Use the App for any unlawful purpose</li>
+        </ul>
+
+        <h2>8. Intellectual Property</h2>
+        <p>All content, features, and functionality of Simple Pattern are owned by us and protected by copyright and intellectual property laws.</p>
+
+        <h2>9. Device Safety</h2>
+        <p>Use the App in accordance with Apple's device safety guidelines. Prolonged use of intense vibration patterns may cause device heating; take breaks as needed.</p>
+
+        <h2>10. Privacy</h2>
+        <p>Your privacy is important to us. Please review our <a href="#" onclick="showPage('privacy')" style="color: var(--primary-light);">Privacy Policy</a> for details. All data stays on your device.</p>
+
+        <h2>11. Disclaimer of Warranties</h2>
+        <p>THE APP IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. We do not warrant that the App will be uninterrupted or error-free, or that haptic patterns will produce any specific therapeutic benefit.</p>
+
+        <h2>12. Limitation of Liability</h2>
+        <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE APP.</p>
+
+        <h2>13. Changes to Terms</h2>
+        <p>We reserve the right to modify these Terms at any time. Your continued use of the App after changes constitutes acceptance.</p>
+
+        <h2>14. Contact Us</h2>
+        <p>If you have any questions about these Terms, please contact us at:<br>
+        <strong>Email:</strong> <a href="mailto:williamjiamin@gmail.com" style="color: var(--primary-light);">williamjiamin@gmail.com</a></p>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-left">&copy; 2026 Simple Pattern. All rights reserved.</div>
+        <ul class="footer-links">
+            <li><a href="#" onclick="showPage('privacy')">Privacy Policy</a></li>
+            <li><a href="#" onclick="showPage('terms')">Terms of Use</a></li>
+            <li><a href="mailto:williamjiamin@gmail.com">Contact</a></li>
+        </ul>
+    </div>
+</footer>
+
+<script>
+    function showPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-' + page).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Handle hash-based routing
+    if (window.location.hash === '#privacy') showPage('privacy');
+    if (window.location.hash === '#terms') showPage('terms');
+</script>
+
+</body>
+</html>
